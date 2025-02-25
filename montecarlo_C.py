@@ -1,3 +1,10 @@
+# "The walker is however not allowed to move into a site belonging to the cluster."
+
+# If the walker is about to move into a sire belonging to the cluster, should
+# it just not move and go through the probability again or should it be a while
+# loop so the walker is forced to move before it gets the chance to become part
+# of the cluster again?
+
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -30,6 +37,13 @@ class Walker():
         # if direction is 1, walker moves in y-direction.
         direction = random.choice([0, 1])
         posneg = random.choice([-1, 1])
+
+        if [self.location[0] + posneg, self.location[1]] in grid.cluster:
+                return
+        else:
+            if [self.location[0], self.location[1] + posneg] in grid.cluster:
+                return
+
         self.location[direction] += posneg
 
         if self.location[1] < 1 or self.location[1] > grid.N:
