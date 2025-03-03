@@ -3,6 +3,7 @@ into seperate modules"""
 
 import numpy as np
 
+
 def laplacian_roll(grid, dx):
     """Computes the laplacian by implementing np.roll, implements 
     periodic boundary conditions"""
@@ -12,6 +13,7 @@ def laplacian_roll(grid, dx):
     left = np.roll(grid, -1, axis=1)
 
     return ((down + up + right + left - 4*grid) / dx**2)
+
 
 def boundary_neumann(grid):
     """Implements the Neumann Boundary Conditions"""
@@ -26,6 +28,11 @@ def boundary_neumann(grid):
 
     return f
 
+
+def boundary_periodic(grid):
+    return
+
+
 def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
     """Calculates The gray scott reaction-diffusion equations.
     LU and LV: Laplacian of U and V
@@ -35,8 +42,19 @@ def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
 
     return du_dt, dv_dt
 
-def update():
+
+def update(grid, dx):
     """Updates the grid for U and V (seperate grids)"""
+    
+    # Compute laplacian
+    laplacian_roll(grid, dx)
+
+    #GS recation
+
+    # Update U and V
+
+    # apply Neumann?
+
 
 def plot():
     """plots concentrations U and V
@@ -50,9 +68,31 @@ def implement_mask():
     """Implement a mask
     - For which parameters?"""
 
-grid = np.array([[1, 2, 3, 4],
-                [5, 6, 7, 8],
-                [9, 10, 11, 12],
-                [13, 14, 15, 16]])
-grid = boundary_neumann(grid)
-print(grid)
+
+def init(n):
+    """Initializes the GS model"""
+
+    U = np.zeros((n, n), dtype=np.float64)
+    V = np.zeros((n, n), dtype=np.float64)
+
+    dx = np.float64(1.0)
+    dt = np.float64(1.0)
+
+    dU = np.float64(0.16)
+    dV = np.float64(0.08)
+
+    feed = np.float64(0.035)
+    kill = np.float64(0.06)
+
+    # Initializes all U values at 0.5
+    U[:,:] = np.float64(0.5)
+    print(U)
+
+
+init(3)
+# grid = np.array([[1, 2, 3, 4],
+#                 [5, 6, 7, 8],
+#                 [9, 10, 11, 12],
+#                 [13, 14, 15, 16]])
+# grid = boundary_neumann(grid)
+# print(grid)
