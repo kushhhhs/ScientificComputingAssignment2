@@ -26,9 +26,14 @@ def boundary_neumann(grid):
 
     return f
 
-def gray_scott():
-    """Calculates The gray scott reaction-diffusion equations."""
-    return
+def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
+    """Calculates The gray scott reaction-diffusion equations.
+    LU and LV: Laplacian of U and V
+    dU and dV: respective diffusion coefficients"""
+    du_dt = (Du * LU) - (U * V**2) + feed(1 - U)
+    dv_dt = (Dv * LV) + (U * V**2) - V(feed + kill)
+
+    return du_dt, dv_dt
 
 def update():
     """Updates the grid for U and V (seperate grids)"""
@@ -51,6 +56,3 @@ grid = np.array([[1, 2, 3, 4],
                 [13, 14, 15, 16]])
 grid = boundary_neumann(grid)
 print(grid)
-
-#print(grid[:, 0])
-#print(grid[:, -2])
