@@ -69,7 +69,7 @@ def implement_mask():
     - For which parameters?"""
 
 
-def init(n, center):
+def init(n, center, i_value_U=0.5, i_value_V=0.25):
     """Initializes the GS model"""
 
     U = np.zeros((n, n), dtype=np.float64)
@@ -85,26 +85,26 @@ def init(n, center):
     kill = np.float64(0.06)
 
     # Initializes all U values at 0.5
-    U[:,:] = np.float64(0.5)
-    #V[]
+    U[:,:] = np.float64(i_value_U)
+
+    # Sets value of V to center positions
+    V = center_positions(n, center, V, i_value_V)
+    print(V)
     print(U)
+    
 
 
-def get_center_positions(n, c):
+def center_positions(n, c, V, i_value_V):
     """Gets the center positions for the grid square mask"""
     start = (n - c) // 2
     end = start + c
-    center_positions = []
     
     for i in range(start, end):
         for j in range(start, end):
-            center_positions.append([i, j])
+           V[i, j] = i_value_V
 
-    return center_positions
+    return V
 
-n = 8
-c = 2
-get_center_positions(n, c)
 # grid = np.array([[1, 2, 3, 4],
 #                 [5, 6, 7, 8],
 #                 [9, 10, 11, 12],
