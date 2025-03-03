@@ -4,7 +4,8 @@ into seperate modules"""
 import numpy as np
 
 def laplacian_roll(grid, dx):
-    """Computes the laplacian by implementing np.roll"""
+    """Computes the laplacian by implementing np.roll, implements 
+    periodic boundary conditions"""
     down = np.roll(grid, 1, axis=0)
     up = np.roll(grid, -1, axis=0)
     right = np.roll(grid, 1, axis=1)
@@ -15,13 +16,15 @@ def laplacian_roll(grid, dx):
 def boundary_neumann(grid):
     """Implements the Neumann Boundary Conditions"""
     f = np.pad(grid, 1)
-    
-    f[:, 0] = f[:, -2]
-    f[:, -1] = f[:, 1]
-    f[0, :] = f[-2, :]
-    f[-1, :] = f[1, :]
+    #print(f)
 
-    return
+    # Periodic conditions
+    #f[:, 0] = f[:, -2]
+    #f[:, -1] = f[:, 1]
+    #f[0, :] = f[-2, :]
+    #f[-1, :] = f[1, :]
+
+    return f
 
 def gray_scott():
     """Calculates The gray scott reaction-diffusion equations."""
@@ -46,4 +49,8 @@ grid = np.array([[1, 2, 3, 4],
                 [5, 6, 7, 8],
                 [9, 10, 11, 12],
                 [13, 14, 15, 16]])
-boundary_neumann(grid)
+grid = boundary_neumann(grid)
+print(grid)
+
+#print(grid[:, 0])
+#print(grid[:, -2])
