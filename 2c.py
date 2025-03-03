@@ -37,23 +37,29 @@ def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
     """Calculates The gray scott reaction-diffusion equations.
     LU and LV: Laplacian of U and V
     dU and dV: respective diffusion coefficients"""
-    du_dt = (Du * LU) - (U * V**2) + feed(1 - U)
-    dv_dt = (Dv * LV) + (U * V**2) - V(feed + kill)
+    dUdt = (Du * LU) - (U * V**2) + feed(1 - U)
+    dVdt = (Dv * LV) + (U * V**2) - V(feed + kill)
 
-    return du_dt, dv_dt
+    return dUdt, dVdt
 
 
-def update(grid, dx):
+def update(U, V, dx, dU, dV, kill=0.06, feed=0.035):
     """Updates the grid for U and V (seperate grids)"""
     
-    # Compute laplacian
-    laplacian_roll(grid, dx)
-
-    #GS recation
+    # Compute laplacian for U and V
+    LU = laplacian_roll(U, dx)
+    LV = laplacian_roll(V, dx)
+    
+    # GS reaction
+    dUdt, dVdt = gray_scott(dU, dV, LU, LV, U, V, feed, kill)
 
     # Update U and V
+    U += dt * dUdt
+    V += dt * dVdt
 
     # apply Neumann?
+    return U, V
+
 
 
 def plot():
@@ -62,11 +68,6 @@ def plot():
     - Multiple graphs below for different parameter changes?
     - Can find sets for specific parameter settings online
         - Change those and note trends/changes in structure/ effects"""
-
-# Optional
-def implement_mask():
-    """Implement a mask
-    - For which parameters?"""
 
 
 def init(n, center, i_value_U=0.5, i_value_V=0.25):
@@ -89,10 +90,9 @@ def init(n, center, i_value_U=0.5, i_value_V=0.25):
 
     # Sets value of V to center positions
     V = center_positions(n, center, V, i_value_V)
-    print(V)
-    print(U)
-    
 
+    return U, V
+    
 
 def center_positions(n, c, V, i_value_V):
     """Gets the center positions for the grid square mask"""
@@ -105,9 +105,13 @@ def center_positions(n, c, V, i_value_V):
 
     return V
 
-# grid = np.array([[1, 2, 3, 4],
-#                 [5, 6, 7, 8],
-#                 [9, 10, 11, 12],
-#                 [13, 14, 15, 16]])
-# grid = boundary_neumann(grid)
-# print(grid)
+
+# Optional
+def implement_mask():
+    """Implement a mask
+    - For which parameters?"""
+
+n = 6
+center = 2
+
+
