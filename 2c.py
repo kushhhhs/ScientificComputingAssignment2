@@ -3,12 +3,18 @@ into seperate modules"""
 
 import numpy as np
 
-def laplacian_roll():
+def laplacian_roll(grid, dx):
     """Computes the laplacian by implementing np.roll"""
-    return
+    down = np.roll(grid, 1, axis=0)
+    up = np.roll(grid, -1, axis=0)
+    right = np.roll(grid, 1, axis=1)
+    left = np.roll(grid, -1, axis=1)
 
-def boundary_neumann():
+    return ((down + up + right + left - 4*grid) / dx**2)
+
+def boundary_neumann(grid):
     """Implements the Neumann Boundary Conditions"""
+
     return
 
 def gray_scott():
