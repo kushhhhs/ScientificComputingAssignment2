@@ -15,16 +15,17 @@ def laplacian_roll(grid, dx):
     return ((down + up + right + left - 4*grid) / dx**2)
 
 
-def boundary_neumann(grid):
-    """Implements the Neumann Boundary Conditions"""
-    f = np.pad(grid, 1)
+def boundary_neumann(f):
+    """Implements the Neumann Boundary Conditions
+    e.g. the derivative at the boundary is zero (no flux across boundary)"""
+    #f = np.pad(grid, 1)
     #print(f)
 
     # Periodic conditions
-    #f[:, 0] = f[:, -2]
-    #f[:, -1] = f[:, 1]
-    #f[0, :] = f[-2, :]
-    #f[-1, :] = f[1, :]
+    f[:, 0] = f[:, -2]
+    f[:, -1] = f[:, 1]
+    f[0, :] = f[-2, :]
+    f[-1, :] = f[1, :]
 
     return f
 
@@ -47,8 +48,8 @@ def update(U, V, dx, dU, dV, kill=0.06, feed=0.035):
     """Updates the grid for U and V (seperate grids)"""
     
     # Compute laplacian for U and V
-    LU = laplacian_roll(U, dx)
-    LV = laplacian_roll(V, dx)
+    LU = laplacian_roll(U[1:-1, 1:-1], dx)
+    LV = laplacian_roll(V[1:-1, 1:-1], dx)
     
     # GS reaction
     dUdt, dVdt = gray_scott(dU, dV, LU, LV, U, V, feed, kill)
@@ -58,6 +59,9 @@ def update(U, V, dx, dU, dV, kill=0.06, feed=0.035):
     V += dt * dVdt
 
     # apply Neumann?
+    U = boundary_neumann(U)
+    V = boundary_neumann(V)
+    
     return U, V
 
 
@@ -76,6 +80,7 @@ def init(n, center, i_value_U=0.5, i_value_V=0.25):
     U = np.zeros((n, n))
     V = np.zeros((n, n))
 
+
     dx = 1.0
     dt = 1.0
 
@@ -90,6 +95,13 @@ def init(n, center, i_value_U=0.5, i_value_V=0.25):
 
     # Sets value of V to center positions
     V = center_positions(n, center, V, i_value_V)
+
+    # Add ghost nodes
+    U = np.pad(U, 1)
+    V = np.pad(V, 1)
+
+    print(U)
+    print(V)
 
     return U, V
     
@@ -128,9 +140,9 @@ U, V = init(n, center, i_value_U=0.5, i_value_V=0.25)
 print(V)
 
 t = 0
-while t < 10:
+while t < 3:
     U, V = update(U, V, dx, dU, dV, kill=0.06, feed=0.035)
     #print(U)
-    t += 1
     print(V)
+    t += 1
 
