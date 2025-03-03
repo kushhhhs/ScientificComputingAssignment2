@@ -14,6 +14,12 @@ def laplacian_roll(grid, dx):
 
 def boundary_neumann(grid):
     """Implements the Neumann Boundary Conditions"""
+    f = np.pad(grid, 1)
+    
+    f[:, 0] = f[:, -2]
+    f[:, -1] = f[:, 1]
+    f[0, :] = f[-2, :]
+    f[-1, :] = f[1, :]
 
     return
 
@@ -35,3 +41,9 @@ def plot():
 def implement_mask():
     """Implement a mask
     - For which parameters?"""
+
+grid = np.array([[1, 2, 3, 4],
+                [5, 6, 7, 8],
+                [9, 10, 11, 12],
+                [13, 14, 15, 16]])
+boundary_neumann(grid)
