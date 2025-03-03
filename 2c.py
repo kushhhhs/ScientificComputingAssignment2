@@ -37,8 +37,8 @@ def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
     """Calculates The gray scott reaction-diffusion equations.
     LU and LV: Laplacian of U and V
     dU and dV: respective diffusion coefficients"""
-    dUdt = (Du * LU) - (U * V**2) + feed(1 - U)
-    dVdt = (Dv * LV) + (U * V**2) - V(feed + kill)
+    dUdt = (dU * LU) - (U * V**2) + feed*(1 - U)
+    dVdt = (dV * LV) + (U * V**2) - V*(feed + kill)
 
     return dUdt, dVdt
 
@@ -73,20 +73,20 @@ def plot():
 def init(n, center, i_value_U=0.5, i_value_V=0.25):
     """Initializes the GS model"""
 
-    U = np.zeros((n, n), dtype=np.float64)
-    V = np.zeros((n, n), dtype=np.float64)
+    U = np.zeros((n, n))
+    V = np.zeros((n, n))
 
-    dx = np.float64(1.0)
-    dt = np.float64(1.0)
+    dx = 1.0
+    dt = 1.0
 
-    dU = np.float64(0.16)
-    dV = np.float64(0.08)
+    dU = 0.16
+    dV = 0.08
 
-    feed = np.float64(0.035)
-    kill = np.float64(0.06)
+    feed = 0.035
+    kill = 0.06
 
     # Initializes all U values at 0.5
-    U[:,:] = np.float64(i_value_U)
+    U[:,:] = i_value_U
 
     # Sets value of V to center positions
     V = center_positions(n, center, V, i_value_V)
@@ -114,4 +114,23 @@ def implement_mask():
 n = 6
 center = 2
 
+dx = 1.0
+dt = 1.0
+
+dU = 0.16
+dV = 0.08
+
+feed = 0.035
+kill = 0.06
+
+U, V = init(n, center, i_value_U=0.5, i_value_V=0.25)
+#print(U)
+print(V)
+
+t = 0
+while t < 10:
+    U, V = update(U, V, dx, dU, dV, kill=0.06, feed=0.035)
+    #print(U)
+    t += 1
+    print(V)
 
