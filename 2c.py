@@ -122,6 +122,7 @@ def center_positions(n, c, V, i_value_V):
 
 
 def plot_field(field):
+    """Plots the passed U field in a heatmap"""
     plt.figure(figsize=(6, 6))
     # Display the interior part of the field (excluding ghost cells)
     plt.imshow(field[1:-1, 1:-1], cmap="jet", interpolation='nearest')
@@ -130,11 +131,9 @@ def plot_field(field):
 
 
 def create_animation(n, center, dx=1.0, dt=1.0, dU=0.16, dV=0.08, feed=0.035, kill=0.06, i_value_U=0.5, i_value_V=0.25):
-
-    # Initialize the padded fields using your init_neumann function.
+    """Creates an animation of U"""
     U, V = init_neumann(n, center, i_value_U, i_value_V)
 
-    # Create figure and axis.
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_title("Gray-Scott Model: U Concentration")
     plt.colorbar(ax.imshow(U[1:-1, 1:-1], cmap='jet', interpolation='nearest'), ax=ax)
