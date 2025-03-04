@@ -30,6 +30,10 @@ def boundary_neumann(grid):
 
 
 def boundary_periodic(grid):
+    u[0, :]   = u[-2, :]
+    u[-1, :]  = u[1, :]
+    u[:, 0]   = u[:, -2]
+    u[:, -1]  = u[:, 1]
     return
 
 
