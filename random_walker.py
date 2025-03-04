@@ -1,6 +1,6 @@
 import random
-
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 class Walker():
     def __init__(self, grid, sticking_probability):
@@ -8,6 +8,8 @@ class Walker():
         self.growth_candidate = False
         self.location = [random.randint(1, grid.N), grid.N]
         self.stick_prob = sticking_probability
+        self.movements = []
+        self.movements.append(self.location[:])
 
     def walk(self, grid):
         
@@ -31,6 +33,8 @@ class Walker():
         elif self.location[0] > grid.N:
             self.location[0] = 1
 
+        self.movements.append(self.location[:])
+
         return self.location
 
     def check_cluster(self, grid):
@@ -41,3 +45,18 @@ class Walker():
                 grid.cluster.append(self.location)
                 return True
         return False
+    
+    def visualise_walk(self, grid):
+        print(self.movements)
+        x, y = [], []
+
+        for movement in self.movements:
+            x.append(movement[0])
+            y.append(movement[1])
+        print(x, y)
+        plt.plot(x, y, "k-")
+        plt.axis("square")
+        plt.grid(True)
+        plt.xticks([x for x in np.arange(0,grid.N+2)])
+        plt.yticks([y for y in np.arange(0,grid.N+2)])
+        plt.show()
