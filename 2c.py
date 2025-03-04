@@ -23,6 +23,7 @@ def boundary_periodic(grid):
     grid[-1, :] = grid[1, :]
     grid[:, 0] = grid[:, -2]
     grid[:, -1] = grid[:, 1]
+    
     return grid
 
 
@@ -30,7 +31,6 @@ def boundary_neumann(grid):
     """Implements the Neumann Boundary Conditions
     e.g. the derivative at the boundary is zero (no flux across boundary)"""
     f = np.pad(grid, 1)
-    #print(f)
 
     f[:, 0] = f[:, 1]
     f[:, -1] = f[:, -2]
@@ -38,6 +38,7 @@ def boundary_neumann(grid):
     f[-1, :] = f[-2, :]
 
     return f
+
 
 def laplacian_neumann(grid, dx):
     """Computes Laplacian for von Neumann BC"""
@@ -47,7 +48,6 @@ def laplacian_neumann(grid, dx):
     right = grid[1:-1, 2:]
     
     return ((top + bottom + left + right - 4*grid[1:-1, 1:-1]) / dx**2)
-
 
 
 def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
@@ -74,7 +74,7 @@ def update(U, V, dx, dt, dU, dV, kill=0.06, feed=0.035):
     U[1:-1, 1:-1] += dt * dUdt
     V[1:-1, 1:-1] += dt * dVdt
 
-    # apply Neumann?
+    # apply Neumann
     U_new = boundary_neumann(U[1:-1, 1:-1])
     V_new = boundary_neumann(V[1:-1, 1:-1])
     
@@ -95,7 +95,7 @@ def init_neumann(n, center, i_value_U=0.5, i_value_V=0.25):
     U = np.zeros((n, n))
     V = np.zeros((n, n))
 
-    # Initializes all U values at 0.5
+    # Initializes all U values at i_value_U
     U[:,:] = i_value_U
 
     # Sets value of V to center positions
@@ -118,7 +118,6 @@ def center_positions(n, c, V, i_value_V):
            V[i, j] = i_value_V
 
     return V
-
 
 
 def plot_field(field):
