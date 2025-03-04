@@ -87,20 +87,11 @@ def plot():
         - Change those and note trends/changes in structure/ effects"""
 
 
-def init(n, center, i_value_U=0.5, i_value_V=0.25):
+def init_neumann(n, center, i_value_U=0.5, i_value_V=0.25):
     """Initializes the GS model"""
 
     U = np.zeros((n, n))
     V = np.zeros((n, n))
-
-    dx = 1.0
-    dt = 1.0
-
-    dU = 0.16
-    dV = 0.08
-
-    feed = 0.035
-    kill = 0.06
 
     # Initializes all U values at 0.5
     U[:,:] = i_value_U
@@ -111,9 +102,6 @@ def init(n, center, i_value_U=0.5, i_value_V=0.25):
     # Apply von Neuman
     U = boundary_neumann(U)
     V = boundary_neumann(V)
-
-    print(U)
-    print(V)
 
     return U, V
     
@@ -134,6 +122,7 @@ def center_positions(n, c, V, i_value_V):
 def implement_mask():
     """Implement a mask
     - For which parameters?"""
+    return
 
 n = 6
 center = 2
@@ -147,14 +136,14 @@ dV = 0.08
 feed = 0.035
 kill = 0.06
 
-U, V = init(n, center, i_value_U=0.5, i_value_V=0.25)
-#print(U)
-print(V)
+U, V = init_neumann(n, center, i_value_U=0.5, i_value_V=0.25)
+print(U)
+#print(V)
 
-t = 0
-while t < 3:
-    U, V = update(U, V, dx, dU, dV, kill=0.06, feed=0.035)
-    #print(U)
-    print(V)
-    t += 1
+# t = 0
+# while t < 3:
+#     U, V = update(U, V, dx, dU, dV, kill=0.06, feed=0.035)
+#     #print(U)
+#     print(V)
+#     t += 1
 
