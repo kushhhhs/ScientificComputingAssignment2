@@ -15,6 +15,15 @@ def laplacian_roll(grid, dx):
     return ((down + up + right + left - 4*grid) / dx**2)
 
 
+def boundary_periodic(grid):
+    """Enforces periodic boundary conditions"""
+    grid[0, :] = grid[-2, :]
+    grid[-1, :] = grid[1, :]
+    grid[:, 0] = grid[:, -2]
+    grid[:, -1] = grid[:, 1]
+    return grid
+
+
 def boundary_neumann(grid):
     """Implements the Neumann Boundary Conditions
     e.g. the derivative at the boundary is zero (no flux across boundary)"""
@@ -28,13 +37,15 @@ def boundary_neumann(grid):
 
     return f
 
+def laplacian_neumann(grid, dx):
+    """Computes Laplacian for von Neumann BC"""
+    top = grid[:-2, 1:-1]
+    bottom = grid[2:, 1:-1]
+    left = grid[1:-1, :-2]
+    right = grid[1:-1, 2:]
+    
+    return ((top + bottom + left + right - 4*grid[1:-1, 1:-1]) / dx**2)
 
-def boundary_periodic(grid):
-    u[0, :]   = u[-2, :]
-    u[-1, :]  = u[1, :]
-    u[:, 0]   = u[:, -2]
-    u[:, -1]  = u[:, 1]
-    return
 
 
 def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
