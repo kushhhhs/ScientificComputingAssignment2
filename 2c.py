@@ -2,6 +2,8 @@
 into seperate modules"""
 
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 
 def laplacian_roll(grid, dx):
@@ -58,25 +60,25 @@ def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
     return dUdt, dVdt
 
 
-def update(U, V, dx, dU, dV, kill=0.06, feed=0.035):
+def update(U, V, dx, dt, dU, dV, kill=0.06, feed=0.035):
     """Updates the grid for U and V (seperate grids)"""
     
     # Compute laplacian for U and V
-    LU = laplacian_roll(U[1:-1, 1:-1], dx)
-    LV = laplacian_roll(V[1:-1, 1:-1], dx)
+    LU = laplacian_neumann(U, dx)
+    LV = laplacian_neumann(V, dx)
     
     # GS reaction
-    dUdt, dVdt = gray_scott(dU, dV, LU, LV, U, V, feed, kill)
+    dUdt, dVdt = gray_scott(dU, dV, LU, LV, U[1:-1, 1:-1], V[1:-1, 1:-1], feed, kill)
 
     # Update U and V
-    U += dt * dUdt
-    V += dt * dVdt
+    U[1:-1, 1:-1] += dt * dUdt
+    V[1:-1, 1:-1] += dt * dVdt
 
     # apply Neumann?
-    U = boundary_neumann(U[1:-1, 1:-1])
-    V = boundary_neumann(V[1:-1, 1:-1])
+    U_new = boundary_neumann(U[1:-1, 1:-1])
+    V_new = boundary_neumann(V[1:-1, 1:-1])
     
-    return U, V
+    return U_new, V_new
 
 
 def plot():
@@ -118,32 +120,59 @@ def center_positions(n, c, V, i_value_V):
     return V
 
 
+
+def plot_field(field):
+    plt.figure(figsize=(6, 6))
+    # Display the interior part of the field (excluding ghost cells)
+    plt.imshow(field[1:-1, 1:-1], cmap="jet", interpolation='nearest')
+    plt.colorbar()
+    plt.show()
+
+
+def create_animation(n, center, dx=1.0, dt=1.0, dU=0.16, dV=0.08, feed=0.035, kill=0.06, i_value_U=0.5, i_value_V=0.25):
+
+    # Initialize the padded fields using your init_neumann function.
+    U, V = init_neumann(n, center, i_value_U, i_value_V)
+
+    # Create figure and axis.
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.set_title("Gray-Scott Model: U Concentration")
+    plt.colorbar(ax.imshow(U[1:-1, 1:-1], cmap='jet', interpolation='nearest'), ax=ax)
+
+    frames = []
+    num_frames = 1000
+    for frame in range(num_frames):
+        U, V = update(U, V, dx, dt, dU, dV, kill=kill, feed=feed)
+        # Eliminate ghost cells from image
+        im = ax.imshow(U[1:-1, 1:-1], cmap='jet', interpolation='nearest', animated=True)
+        frames.append([im])
+
+    ani = animation.ArtistAnimation(fig, frames, interval=20, blit=True, repeat_delay=1000)
+    ani.save('gray_scott.gif', writer='pillow', fps=50)    
+    plt.show()
+
+
 # Optional
 def implement_mask():
     """Implement a mask
     - For which parameters?"""
     return
 
-n = 6
-center = 2
+# n = 900
+# center = 30
 
-dx = 1.0
-dt = 1.0
+# dx = 1.0
+# dt = 1.0
 
-dU = 0.16
-dV = 0.08
+# dU = 0.16
+# dV = 0.08
 
-feed = 0.035
-kill = 0.06
+# feed = 0.035
+# kill = 0.06
 
-U, V = init_neumann(n, center, i_value_U=0.5, i_value_V=0.25)
-print(U)
-#print(V)
+# U, V = init_neumann(n, center, i_value_U=0.5, i_value_V=0.25)
 
 # t = 0
-# while t < 3:
-#     U, V = update(U, V, dx, dU, dV, kill=0.06, feed=0.035)
-#     #print(U)
-#     print(V)
+# while t < 1000:
+#     U, V = U, V = update(U, V, dx, dt, dU, dV, kill=0.06, feed=0.035)
 #     t += 1
-
