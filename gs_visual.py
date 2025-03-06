@@ -2,22 +2,20 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-def create_animation(n, center, frames_per_update):
+def create_animation(gs):
     """Creates an animation of U using FuncAnimation"""
-    
-    gs1 = GrayScott(n=n, center=center)
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_title("Gray-Scott Model: U Concentration")
 
-    im = ax.imshow(gs1.U[1:-1, 1:-1], cmap='jet', interpolation='nearest')
+    im = ax.imshow(gs.U[1:-1, 1:-1], cmap='jet', interpolation='nearest')
     plt.colorbar(im, ax=ax)
 
     def update_frame(frame):
         """Updates U and the image data"""
-        for f in range(10):
-            gs1.update()
-        im.set_array(gs1.U[1:-1, 1:-1])
+        for _ in range(10):
+            gs.update()
+        im.set_array(gs.U[1:-1, 1:-1])
 
         return [im]
 
@@ -27,9 +25,7 @@ def create_animation(n, center, frames_per_update):
     plt.show()
 
 
-def plot_field_UV(iterations=10000):
-    gs = GrayScott()
-
+def plot_field_UV(gs, iterations=10000):
     for _ in range(iterations):
         gs.update()
 
@@ -48,9 +44,7 @@ def plot_field_UV(iterations=10000):
     plt.show()
 
 
-def plot_field(field, iterations=10000):
-    gs = GrayScott()
-
+def plot_field(gs, field, iterations=10000):
     for _ in range(iterations):
         gs.update()
 
