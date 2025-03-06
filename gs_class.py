@@ -116,7 +116,7 @@ class GrayScott():
         self.V = V_new
 
 
-def create_animation2(n, center, frames_per_update):
+def create_animation(n, center, frames_per_update):
     """Creates an animation of U using FuncAnimation"""
     
     gs1 = GrayScott(n=n, center=center)
@@ -135,31 +135,35 @@ def create_animation2(n, center, frames_per_update):
 
         return [im]
 
-    ani = animation.FuncAnimation(fig, update_frame, frames=1000, interval=20, blit=False, repeat_delay=1000)
+    ani = animation.FuncAnimation(fig, update_frame, frames=100, interval=20, blit=False, repeat_delay=1000)
 
     ani.save('gray_scott_func2.gif', writer='pillow', fps=50)    
     plt.show()
 
 
-def plot_field(iterations=500):
+def plot_field(iterations=10000):
     gs = GrayScott()
 
     for _ in range(iterations):
         gs.update()
 
+    cmin = min(gs.U.min(), gs.V.min())
+    cmax = max(gs.U.max(), gs.V.max())
+
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-    im1 = ax1.imshow(gs.U[1:-1, 1:-1], cmap="jet", origin="lower")
+    im1 = ax1.imshow(gs.U[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, vmax=cmax)
     ax1.set_title("Concentration Field of U")
-    fig.colorbar(im1, ax=ax1, orientation="vertical", label="Concentration of U")
-    im2 = ax2.imshow(gs.V[1:-1, 1:-1], cmap="jet", origin="lower")
+
+    im2 = ax2.imshow(gs.V[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, vmax=cmax)
     ax2.set_title("Concentration Field of V")
-    fig.colorbar(im2, ax=ax2, orientation="vertical", label="Concentration of V")
-    
-    #plt.title(f"Gray-Scott Reaction-Diffusion at t={iterations} for U and V")
+
+    cbar = fig.colorbar(im1, ax=[ax1, ax2], orientation="vertical", shrink=0.8, label="Concentration (U & V)")
+    plt.savefig('gray_scott_field_UV.png', dpi=300)
     plt.show()
+
     return
 
-plot_field()
+#plot_field()
 
 
-# create_animation2(n=100, center=6, frames_per_update=10)
+create_animation(n=100, center=6, frames_per_update=10)
