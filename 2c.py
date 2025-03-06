@@ -6,6 +6,107 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
+class GrayScott():
+    """This class models A 2D Gray-Scott reaction-diffusion equation."""
+
+    def __init__(
+        self,
+        dx: float = 1.0,
+        dt: float = 1.0,
+        dU: float = 0.16,
+        dV: float = 0.08,
+        feed: float = 0.035,
+        kill: float = 0.06
+    ):
+        self.dx = dx
+        self.dt = dt
+        self.dU = dU
+        self.dV = dV
+        self.feed = feed
+        self.kill = kill
+        self.init_neumann(n, center, i_value_U, i_value_V)
+
+    def init_neumann(self, n, center, i_value_U, i_value_V):
+        """Initializes the GS model"""
+
+        U = np.zeros((n, n))
+        V = np.zeros((n, n))
+
+        # Initializes all U values at i_value_U
+        U[:,:] = i_value_U
+
+        # Sets value of V to center positions
+        V = self.center_positions(n, center, V, i_value_V)
+
+        # Apply von Neuman
+        self.U = self.boundary_neumann(U)
+        self.V = self.boundary_neumann(V)
+
+    def center_positions(n, c, V, i_value_V):
+        """Gets the center positions for the grid square mask"""
+        start = (n - c) // 2
+        end = start + c
+        
+        for i in range(start, end):
+            for j in range(start, end):
+                V[i, j] = i_value_V
+
+        return V
+
+    def boundary_neumann(grid):
+        """Implements the Neumann Boundary Conditions
+        e.g. the derivative at the boundary is zero (no flux across boundary)"""
+        f = np.pad(grid, 1)
+
+        f[:, 0] = f[:, 1]
+        f[:, -1] = f[:, -2]
+        f[0, :] = f[1, :]
+        f[-1, :] = f[-2, :]
+
+        return f
+
+    def laplacian_neumann(self, grid):
+        """Computes Laplacian for von Neumann BC"""
+        top = grid[:-2, 1:-1]
+        bottom = grid[2:, 1:-1]
+        left = grid[1:-1, :-2]
+        right = grid[1:-1, 2:]
+        
+        return ((top + bottom + left + right - 4*grid[1:-1, 1:-1]) / self.dx**2)
+
+    def gray_scott(self, LU, LV):
+        """Calculates The gray scott reaction-diffusion equations.
+        LU and LV: Laplacian of U and V
+        dU and dV: respective diffusion coefficients"""
+        uv2 = self.U * self.V**2
+
+        dUdt = (self.dU * LU) - uv2 + self.feed*(1 - self.U)
+        dVdt = (self.dV * LV) + uv2 - self.V*(self.feed + self.kill)
+
+        return dUdt, dVdt
+
+    def update(self):
+        """Updates the grid for U and V (seperate grids)"""
+        
+        # Compute the Laplacian for U and V
+        LU = self.laplacian_neumann(self.U, self.dx)
+        LV = self.laplacian_neumann(self.V, self.dx)
+        
+        # Compute the Gray-Scott reaction
+        dUdt, dVdt = self.gray_scott(LU, LV, self.U[1:-1, 1:-1], self.V[1:-1, 1:-1])
+
+        # Update U and V
+        self.U[1:-1, 1:-1] += self.dt * dUdt
+        self.V[1:-1, 1:-1] += self.dt * dVdt
+
+        # Apply the Neumann boundary conditions
+        U_new = self.boundary_neumann(self.U[1:-1, 1:-1])
+        V_new = self.boundary_neumann(self.V[1:-1, 1:-1])
+        
+        self.U = U_new
+        self.V = V_new
+
+
 def laplacian_roll(grid, dx):
     """Computes the laplacian by implementing np.roll, implements 
     periodic boundary conditions"""
@@ -25,39 +126,6 @@ def boundary_periodic(grid):
     grid[:, -1] = grid[:, 1]
     
     return grid
-
-
-def boundary_neumann(grid):
-    """Implements the Neumann Boundary Conditions
-    e.g. the derivative at the boundary is zero (no flux across boundary)"""
-    f = np.pad(grid, 1)
-
-    f[:, 0] = f[:, 1]
-    f[:, -1] = f[:, -2]
-    f[0, :] = f[1, :]
-    f[-1, :] = f[-2, :]
-
-    return f
-
-
-def laplacian_neumann(grid, dx):
-    """Computes Laplacian for von Neumann BC"""
-    top = grid[:-2, 1:-1]
-    bottom = grid[2:, 1:-1]
-    left = grid[1:-1, :-2]
-    right = grid[1:-1, 2:]
-    
-    return ((top + bottom + left + right - 4*grid[1:-1, 1:-1]) / dx**2)
-
-
-def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
-    """Calculates The gray scott reaction-diffusion equations.
-    LU and LV: Laplacian of U and V
-    dU and dV: respective diffusion coefficients"""
-    dUdt = (dU * LU) - (U * V**2) + feed*(1 - U)
-    dVdt = (dV * LV) + (U * V**2) - V*(feed + kill)
-
-    return dUdt, dVdt
 
 
 def update(U, V, dx, dt, dU, dV, kill=0.06, feed=0.035):
@@ -150,11 +218,10 @@ def create_animation(n, center, frames_per_update, dx=1.0, dt=1.0, dU=0.16, dV=0
 
         return [im]
 
-    ani = animation.FuncAnimation(fig, update_frame, frames=100, interval=20, blit=False, repeat_delay=1000, fargs=(frames_per_update,))
+    ani = animation.FuncAnimation(fig, update_frame, frames=10000, interval=20, blit=False, repeat_delay=1000, fargs=(frames_per_update,))
 
     ani.save('gray_scott_func.gif', writer='pillow', fps=50)    
     plt.show()
-
 
 
 # Optional
@@ -163,41 +230,10 @@ def implement_mask():
     - For which parameters?"""
     return
 
-# n = 900
-# center = 30
-
-# dx = 1.0
-# dt = 1.0
-
-# dU = 0.16
-# dV = 0.08
-
-# feed = 0.035
-# kill = 0.06
-
-# U, V = init_neumann(n, center, i_value_U=0.5, i_value_V=0.25)
-
-# t = 0
-# while t < 1000:
-#     U, V = U, V = update(U, V, dx, dt, dU, dV, kill=0.06, feed=0.035)
-#     t += 1
 
 #to measure time dependent or stable, measure the differences between time steps
 
 create_animation(n=100, center=6, frames_per_update=10)
 
-# def make_graph(n, center, dx=1.0, dt=1.0, dU=0.16, dV=0.08, feed=0.035, kill=0.06, i_value_U=0.5, i_value_V=0.25):
-#     nr_updates = 900
-#     U, V = init_neumann(n, center, i_value_U, i_value_V)
-
-#     for n in range(nr_updates):
-#         U, V = update(U, V, dx, dt, dU, dV, kill=kill, feed=feed)
-
-#     plot_field(U)
-
-# n = 50
-# center = 4
-
-# make_graph(n, center)
 
     
