@@ -141,7 +141,7 @@ def create_animation(n, center, frames_per_update):
     plt.show()
 
 
-def plot_field(iterations=10000):
+def plot_field_UV(iterations=10000):
     gs = GrayScott()
 
     for _ in range(iterations):
@@ -161,9 +161,27 @@ def plot_field(iterations=10000):
     plt.savefig('gray_scott_field_UV.png', dpi=300)
     plt.show()
 
-    return
 
-#plot_field()
+def plot_field(field, iterations=10000):
+    gs = GrayScott()
+
+    for _ in range(iterations):
+        gs.update()
+
+    plt.figure(figsize=(6, 6))
+
+    if field == 'U':
+        plt.imshow(gs.U[1:-1, 1:-1], cmap="jet", origin="lower")
+    elif field == 'V':
+        plt.imshow(gs.V[1:-1, 1:-1], cmap="jet", origin="lower")
+    else:
+        raise ValueError('No valid field parameter, choose U or V')
+        
+    plt.colorbar(label="Concentration", shrink=0.8)
+    plt.title(f"Gray-Scott Reaction-Diffusion at t={iterations} for {field}")
+    plt.savefig(f"gray_scott_field_{field}.png", dpi=300)
+    plt.show()
 
 
-create_animation(n=100, center=6, frames_per_update=10)
+plot_field(field='U')
+#create_animation(n=100, center=6, frames_per_update=10)
