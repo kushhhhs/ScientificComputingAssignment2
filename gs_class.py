@@ -2,8 +2,6 @@
 into seperate modules"""
 
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 
 class GrayScott():
@@ -20,7 +18,8 @@ class GrayScott():
         dU: float = 0.16,
         dV: float = 0.08,
         feed: float = 0.035,
-        kill: float = 0.06
+        kill: float = 0.06, 
+        noise: float = 0.0
     ):
         self.dx = dx
         self.dt = dt
@@ -28,6 +27,7 @@ class GrayScott():
         self.dV = dV
         self.feed = feed
         self.kill = kill
+        self.noise_strength = noise
         self.U, self.V = self.init_neumann(n, center, i_value_U, i_value_V)
 
     def init_neumann(self, n, center, i_value_U, i_value_V):
@@ -80,12 +80,12 @@ class GrayScott():
         
         return ((top + bottom + left + right - 4*grid[1:-1, 1:-1]) / self.dx**2)
 
-    def gray_scott(self, LU, LV, U, V, noise_strength=0.0):
+    def gray_scott(self, LU, LV, U, V):
         """Calculates The gray scott reaction-diffusion equations.
         LU and LV: Laplacian of U and V
         dU and dV: respective diffusion coefficients
         standard noise strength set to zero so no noise present"""
-        noise = noise_strength * np.random.normal(loc=0, scale=1.0, size=U.shape)
+        noise = self.noise_strength * np.random.normal(loc=0, scale=1.0, size=U.shape)
         
         uv2 = U * V**2
 
@@ -114,74 +114,3 @@ class GrayScott():
         
         self.U = U_new
         self.V = V_new
-
-
-def create_animation(n, center, frames_per_update):
-    """Creates an animation of U using FuncAnimation"""
-    
-    gs1 = GrayScott(n=n, center=center)
-
-    fig, ax = plt.subplots(figsize=(6, 6))
-    ax.set_title("Gray-Scott Model: U Concentration")
-
-    im = ax.imshow(gs1.U[1:-1, 1:-1], cmap='jet', interpolation='nearest')
-    plt.colorbar(im, ax=ax)
-
-    def update_frame(frame):
-        """Updates U and the image data"""
-        for f in range(10):
-            gs1.update()
-        im.set_array(gs1.U[1:-1, 1:-1])
-
-        return [im]
-
-    ani = animation.FuncAnimation(fig, update_frame, frames=100, interval=20, blit=False, repeat_delay=1000)
-
-    ani.save('gray_scott_func2.gif', writer='pillow', fps=50)    
-    plt.show()
-
-
-def plot_field_UV(iterations=10000):
-    gs = GrayScott()
-
-    for _ in range(iterations):
-        gs.update()
-
-    cmin = min(gs.U.min(), gs.V.min())
-    cmax = max(gs.U.max(), gs.V.max())
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
-    im1 = ax1.imshow(gs.U[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, vmax=cmax)
-    ax1.set_title("Concentration Field of U")
-
-    im2 = ax2.imshow(gs.V[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, vmax=cmax)
-    ax2.set_title("Concentration Field of V")
-
-    cbar = fig.colorbar(im1, ax=[ax1, ax2], orientation="vertical", shrink=0.8, label="Concentration (U & V)")
-    plt.savefig('gray_scott_field_UV.png', dpi=300)
-    plt.show()
-
-
-def plot_field(field, iterations=10000):
-    gs = GrayScott()
-
-    for _ in range(iterations):
-        gs.update()
-
-    plt.figure(figsize=(6, 6))
-
-    if field == 'U':
-        plt.imshow(gs.U[1:-1, 1:-1], cmap="jet", origin="lower")
-    elif field == 'V':
-        plt.imshow(gs.V[1:-1, 1:-1], cmap="jet", origin="lower")
-    else:
-        raise ValueError('No valid field parameter, choose U or V')
-        
-    plt.colorbar(label="Concentration", shrink=0.8)
-    plt.title(f"Gray-Scott Reaction-Diffusion at t={iterations} for {field}")
-    plt.savefig(f"gray_scott_field_{field}.png", dpi=300)
-    plt.show()
-
-
-plot_field(field='U')
-#create_animation(n=100, center=6, frames_per_update=10)
