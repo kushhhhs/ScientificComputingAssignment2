@@ -63,18 +63,18 @@ def gray_scott(dU, dV, LU, LV, U, V, feed, kill):
 def update(U, V, dx, dt, dU, dV, kill=0.06, feed=0.035):
     """Updates the grid for U and V (seperate grids)"""
     
-    # Compute laplacian for U and V
+    # Compute the Laplacian for U and V
     LU = laplacian_neumann(U, dx)
     LV = laplacian_neumann(V, dx)
     
-    # GS reaction
+    # Compute the Gray-Scott reaction
     dUdt, dVdt = gray_scott(dU, dV, LU, LV, U[1:-1, 1:-1], V[1:-1, 1:-1], feed, kill)
 
     # Update U and V
     U[1:-1, 1:-1] += dt * dUdt
     V[1:-1, 1:-1] += dt * dVdt
 
-    # apply Neumann
+    # Apply the Neumann boundary conditions
     U_new = boundary_neumann(U[1:-1, 1:-1])
     V_new = boundary_neumann(V[1:-1, 1:-1])
     
@@ -123,31 +123,38 @@ def center_positions(n, c, V, i_value_V):
 def plot_field(field):
     """Plots the passed U field in a heatmap"""
     plt.figure(figsize=(6, 6))
+
     # Display the interior part of the field (excluding ghost cells)
     plt.imshow(field[1:-1, 1:-1], cmap="jet", interpolation='nearest')
     plt.colorbar()
     plt.show()
 
 
-def create_animation(n, center, dx=1.0, dt=1.0, dU=0.16, dV=0.08, feed=0.035, kill=0.06, i_value_U=0.5, i_value_V=0.25):
-    """Creates an animation of U"""
+def create_animation(n, center, frames_per_update, dx=1.0, dt=1.0, dU=0.16, dV=0.08, feed=0.035, kill=0.06, i_value_U=0.5, i_value_V=0.25):
+    """Creates an animation of U using FuncAnimation"""
+    
     U, V = init_neumann(n, center, i_value_U, i_value_V)
 
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.set_title("Gray-Scott Model: U Concentration")
-    plt.colorbar(ax.imshow(U[1:-1, 1:-1], cmap='jet', interpolation='nearest'), ax=ax)
+    
+    im = ax.imshow(U[1:-1, 1:-1], cmap='jet', interpolation='nearest')
+    plt.colorbar(im, ax=ax)
 
-    frames = []
-    num_frames = 1000
-    for frame in range(num_frames):
-        U, V = update(U, V, dx, dt, dU, dV, kill=kill, feed=feed)
-        # Eliminate ghost cells from image
-        im = ax.imshow(U[1:-1, 1:-1], cmap='jet', interpolation='nearest', animated=True)
-        frames.append([im])
+    def update_frame(frame, frames_per_update):
+        """Updates U and the image data"""
+        nonlocal U, V
+        for f in range(frames_per_update):
+            U, V = update(U, V, dx, dt, dU, dV, kill=kill, feed=feed)
+        im.set_array(U[1:-1, 1:-1])
 
-    ani = animation.ArtistAnimation(fig, frames, interval=20, blit=True, repeat_delay=1000)
-    ani.save('gray_scott.gif', writer='pillow', fps=50)    
+        return [im]
+
+    ani = animation.FuncAnimation(fig, update_frame, frames=100, interval=20, blit=False, repeat_delay=1000, fargs=(frames_per_update,))
+
+    ani.save('gray_scott_func.gif', writer='pillow', fps=50)    
     plt.show()
+
 
 
 # Optional
@@ -174,3 +181,23 @@ def implement_mask():
 # while t < 1000:
 #     U, V = U, V = update(U, V, dx, dt, dU, dV, kill=0.06, feed=0.035)
 #     t += 1
+
+#to measure time dependent or stable, measure the differences between time steps
+
+create_animation(n=100, center=6, frames_per_update=10)
+
+# def make_graph(n, center, dx=1.0, dt=1.0, dU=0.16, dV=0.08, feed=0.035, kill=0.06, i_value_U=0.5, i_value_V=0.25):
+#     nr_updates = 900
+#     U, V = init_neumann(n, center, i_value_U, i_value_V)
+
+#     for n in range(nr_updates):
+#         U, V = update(U, V, dx, dt, dU, dV, kill=kill, feed=feed)
+
+#     plot_field(U)
+
+# n = 50
+# center = 4
+
+# make_graph(n, center)
+
+    
