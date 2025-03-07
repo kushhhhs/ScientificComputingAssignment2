@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-def create_animation(gs):
+def create_animation(gs, frames=100):
     """Creates an animation of U using FuncAnimation"""
 
     fig, ax = plt.subplots(figsize=(6, 6))
@@ -19,10 +19,13 @@ def create_animation(gs):
 
         return [im]
 
-    ani = animation.FuncAnimation(fig, update_frame, frames=100, interval=20, blit=False, repeat_delay=1000)
+    ani = animation.FuncAnimation(fig, update_frame, frames=frames, interval=20, blit=False, repeat_delay=1000)
+    ani.save('gray_scott_func2.gif', writer='pillow', fps=50)  
 
-    ani.save('gray_scott_func2.gif', writer='pillow', fps=50)    
-    plt.show()
+    # Close the figure to not automatically display in the notebook
+    plt.close(fig)
+
+    return ani
 
 
 def plot_field_UV(gs, iterations=10000):
@@ -61,7 +64,3 @@ def plot_field(gs, field, iterations=10000):
     plt.title(f"Gray-Scott Reaction-Diffusion at t={iterations} for {field}")
     plt.savefig(f"gray_scott_field_{field}.png", dpi=300)
     plt.show()
-
-
-#plot_field(field='U')
-#create_animation(n=100, center=6, frames_per_update=10)
