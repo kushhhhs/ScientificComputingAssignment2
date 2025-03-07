@@ -114,23 +114,3 @@ class GrayScott():
         
         self.U = U_new
         self.V = V_new
-
-
-# # Initialize the model
-# gs = GrayScott()
-
-# # Set up the figure and axis
-# fig, ax = plt.subplots()
-# im = ax.imshow(gs.U[1:-1, 1:-1], cmap="jet", interpolation="nearest", vmin=0, vmax=1)
-
-# def update(frame):
-#     for _ in range(20):  # Run multiple update steps per frame
-#         gs.update()
-#     im.set_data(gs.U[1:-1, 1:-1])
-#     return [im]
-
-
-# # Create the animation
-# ani = animation.FuncAnimation(fig, update, frames=200, interval=100, blit=True)
-
-# plt.show()
