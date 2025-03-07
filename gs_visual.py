@@ -27,6 +27,8 @@ def create_animation(gs, frames=100):
 
     #Check1
     ani.save('gray_scott_func2.gif', writer='pillow')
+    plt.close(fig)
+    
     return ani
 
 
