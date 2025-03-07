@@ -1,30 +1,34 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from IPython.display import HTML
 
 
-def create_animation(gs, frames=100, fps=20):
-    """Creates an animation of U using FuncAnimation"""
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from IPython.display import HTML
 
-    fig, ax = plt.subplots(figsize=(6, 6))
-    ax.set_title("Gray-Scott Model: U Concentration")
+def create_animation(gs, frames=100):
+    """Creates an animation of U using ArtistAnimation (precomputed frames)."""
 
-    im = ax.imshow(gs.U[1:-1, 1:-1], cmap='jet', interpolation='nearest')
-    plt.colorbar(im, ax=ax)
+    fig, ax = plt.subplots()
+    im = ax.imshow(gs.U[1:-1, 1:-1], cmap="jet", interpolation="nearest", vmin=0, vmax=1)
 
-    def update_frame(frame):
-        """Updates U and the image data"""
-        gs.update()
-        im.set_array(gs.U[1:-1, 1:-1])
+    # Store precomputed frames
+    ims = []
+    for _ in range(frames):
+        for _ in range(20):
+            gs.update()
+        im_ = ax.imshow(gs.U[1:-1, 1:-1], cmap="jet", animated=True, vmin=0, vmax=1)
+        ims.append([im_])
 
-        return [im]
+    # Use ArtistAnimation (which stores frames and correctly)
+    ani = animation.ArtistAnimation(fig, ims, interval=100, blit=True)
 
-    ani = animation.FuncAnimation(fig, update_frame, frames=frames, interval=(1000/fps), blit=True, repeat_delay=False)
-    ani.save('gray_scott_func2.gif', writer='pillow', fps=fps)  
-
-    # Close the figure to not automatically display in the notebook
-    #plt.close(fig)
-
+    #Check1
+    ani.save('gray_scott_func2.gif', writer='pillow')
     return ani
+
 
 
 def plot_field_UV(gs, iterations=10000):
