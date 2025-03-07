@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
 
-def create_animation(gs, frames=100):
+def create_animation(gs, frames=100, updates_per_frame=20):
     """Creates an animation of U using ArtistAnimation (precomputed frames)."""
 
     fig, ax = plt.subplots()
@@ -17,7 +17,7 @@ def create_animation(gs, frames=100):
     # Store precomputed frames
     ims = []
     for _ in range(frames):
-        for _ in range(20):
+        for _ in range(updates_per_frame):
             gs.update()
         im_ = ax.imshow(gs.U[1:-1, 1:-1], cmap="jet", animated=True, vmin=0, vmax=1)
         ims.append([im_])
@@ -26,9 +26,9 @@ def create_animation(gs, frames=100):
     ani = animation.ArtistAnimation(fig, ims, interval=100, blit=True)
 
     #Check1
-    ani.save('gray_scott_func2.gif', writer='pillow')
+    #ani.save('gray_scott_func2.gif', writer='pillow')
     plt.close(fig)
-    
+
     return ani
 
 
