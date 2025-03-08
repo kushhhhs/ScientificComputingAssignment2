@@ -24,17 +24,13 @@ def create_animation(gs, frames=100, updates_per_frame=20):
 
     # Use ArtistAnimation (which stores frames and correctly)
     ani = animation.ArtistAnimation(fig, ims, interval=100, blit=True)
-
-    #Check1
-    #ani.save('gray_scott_func2.gif', writer='pillow')
     plt.close(fig)
 
     return ani
 
 
-
 def plot_field_UV(gs, iterations=10000):
-    for _ in range(gs, iterations):
+    for _ in range(iterations):
         gs.update()
 
     cmin = min(gs.U.min(), gs.V.min())
@@ -48,27 +44,32 @@ def plot_field_UV(gs, iterations=10000):
     ax2.set_title("Concentration Field of V")
 
     cbar = fig.colorbar(im1, ax=[ax1, ax2], orientation="vertical", shrink=0.8, label="Concentration (U & V)")
-    plt.savefig('gray_scott_field_UV.png', dpi=300)
-    plt.show()
+    return fig
+
 
 
 def plot_field(gs, field, iterations=10000):
+    """Plots the U or V concentration field after running for 'iterations' steps."""
+    
     for _ in range(iterations):
         gs.update()
+    fig, ax = plt.subplots(figsize=(6, 6))  
 
-    plt.figure(figsize=(6, 6))
-
+    # Select field to plot
     if field == 'U':
-        plt.imshow(gs.U[1:-1, 1:-1], cmap="jet", origin="lower")
+        im = ax.imshow(gs.U[1:-1, 1:-1], cmap="jet", origin="lower")
     elif field == 'V':
-        plt.imshow(gs.V[1:-1, 1:-1], cmap="jet", origin="lower")
+        im = ax.imshow(gs.V[1:-1, 1:-1], cmap="jet", origin="lower")
     else:
         raise ValueError('No valid field parameter, choose U or V')
-        
-    plt.colorbar(label="Concentration", shrink=0.8)
-    plt.title(f"Gray-Scott Reaction-Diffusion at t={iterations} for {field}")
-    plt.savefig(f"gray_scott_field_{field}.png", dpi=300)
-    plt.show()
+
+    cbar = fig.colorbar(im, ax=ax, shrink=0.8)
+    cbar.set_label("Concentration")
+
+    ax.set_title(f"Gray-Scott Reaction-Diffusion at t={iterations} for {field}")
+
+    return fig
+
 
 
 def plot_field_compare(gs1, gs2, gs3, gs4, iterations=10000):
@@ -85,7 +86,6 @@ def plot_field_compare(gs1, gs2, gs3, gs4, iterations=10000):
     fig, axes = plt.subplots(2, 2, figsize=(12, 12))
     (ax1, ax2), (ax3, ax4) = axes
 
-
     im1 = ax1.imshow(gs1.U[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, vmax=cmax)
     ax1.set_title(f"f = {gs1.feed} and k = {gs1.kill}")
 
@@ -99,5 +99,7 @@ def plot_field_compare(gs1, gs2, gs3, gs4, iterations=10000):
     ax4.set_title(f"f = {gs4.feed} and k = {gs4.kill}")
 
     cbar = fig.colorbar(im1, ax=[ax1, ax2, ax3, ax4], orientation="vertical", shrink=0.8, label="Concentration (U & V)")
-    plt.savefig('gray_scott_field_UV.png', dpi=300)
-    plt.show()
+    #plt.savefig('gray_scott_field_UV.png', dpi=300)
+    #plt.show()
+    
+    return fig
