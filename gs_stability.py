@@ -1,4 +1,6 @@
 """This model checks if a gray scott model is time dependent or not"""
+import numpy as np
+
 
 def detect_pattern_variance(gs, iterations=5000, check_interval=100, threshold=1e-5):
     """Determines stability based on the variance of U over time.
