@@ -1,4 +1,9 @@
-"""This module visualises the Gray Scott class fields for U and V."""
+"""
+Gray Scott Reaction-Diffusion visualisation
+
+This module visualises the Gray Scott class fields for U and V as 
+animations, single field plots with heatmaps and multiple (to compare).
+"""
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
