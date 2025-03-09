@@ -1,5 +1,9 @@
-"""This module creates a class for the Gray Scott reaction-diffusion 
-model."""
+"""
+Gray Scott Reaction-Diffusion Model Class
+
+This module creates a class for the Gray Scott reaction-diffusion 
+model with Von Neumann Boundary conditions.
+"""
 
 import numpy as np
 

@@ -1,5 +1,7 @@
-"""This module answers assignment 2.3 and will later likely be divided 
-into seperate modules"""
+"""This module contains the first functions to implement 2.d. It is no 
+longer neccesary to run the code as functions have been incorporated 
+into the GrayScott class. Some periodic boundary conditions are here. 
+Those have not been implemented."""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -133,15 +135,6 @@ def center_positions(n, c, V, i_value_V):
     return V
 
 
-def plot_field(field):
-    """Plots the passed U field in a heatmap"""
-    plt.figure(figsize=(6, 6))
-
-    # Display the interior part of the field (excluding ghost cells)
-    plt.imshow(field[1:-1, 1:-1], cmap="jet", interpolation='nearest')
-    plt.colorbar()
-    plt.show()
-
 
 def create_animation(n, center, frames_per_update, dx=1.0, dt=1.0, dU=0.16, dV=0.08, feed=0.035, kill=0.06, i_value_U=0.5, i_value_V=0.25):
     """Creates an animation of U using FuncAnimation"""
@@ -168,19 +161,6 @@ def create_animation(n, center, frames_per_update, dx=1.0, dt=1.0, dU=0.16, dV=0
     ani.save('gray_scott_func.gif', writer='pillow', fps=50)    
     plt.show()
 
-
-# Optional
-def implement_mask():
-    """Implement a mask
-    - For which parameters?"""
-    return
-
-
-
-
-#to measure time dependent or stable, measure the differences between time steps
-
-create_animation(n=100, center=6, frames_per_update=10)
 
 
     
