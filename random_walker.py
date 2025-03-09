@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Walker():
-    def __init__(self, grid, sticking_probability):
+    def __init__(self, grid):
         self.active = True
         self.growth_candidate = False
-        self.location = [random.randint(1, grid.N), grid.N]
-        self.stick_prob = sticking_probability
+        self.location = [random.randint(1, grid.grid_size), grid.grid_size]
         self.movements = []
         self.movements.append(self.location[:])
 
@@ -24,13 +23,13 @@ class Walker():
 
         self.location[direction] += posneg
 
-        if self.location[1] < 1 or self.location[1] > grid.N:
+        if self.location[1] < 1 or self.location[1] > grid.grid_size:
             self.active = False
             return
 
         if self.location[0] < 1:
-            self.location[0] = grid.N
-        elif self.location[0] > grid.N:
+            self.location[0] = grid.grid_size
+        elif self.location[0] > grid.grid_size:
             self.location[0] = 1
 
         self.movements.append(self.location[:])
@@ -39,7 +38,7 @@ class Walker():
 
     def check_cluster(self, grid):
         for growth_candidate in grid.cluster:
-            if (abs(self.location[0] - growth_candidate[0]) + abs(self.location[1] - growth_candidate[1])) == 1 and self.active == True and random.random() <= self.stick_prob:
+            if (abs(self.location[0] - growth_candidate[0]) + abs(self.location[1] - growth_candidate[1])) == 1 and self.active == True and random.random() <= grid.stick_prob:
                 self.growth_candidate = True
                 self.active = False
                 grid.cluster.append(self.location)
@@ -57,6 +56,6 @@ class Walker():
         plt.plot(x, y, "k-")
         plt.axis("square")
         plt.grid(True)
-        plt.xticks([x for x in np.arange(0,grid.N+2)])
-        plt.yticks([y for y in np.arange(0,grid.N+2)])
+        plt.xticks([x for x in np.arange(0,grid.grid_size+2)])
+        plt.yticks([y for y in np.arange(0,grid.grid_size+2)])
         plt.show()
