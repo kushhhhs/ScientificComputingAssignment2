@@ -1,3 +1,5 @@
+# this one
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -21,47 +23,66 @@ def analytical_solution(x, t, D, max_range=10):
     sum_analytical = np.zeros_like(x)
     for i in range(max_range):
         sum_analytical += erfc((1 - x + 2 * i) / (2*np.sqrt(D*t))) - erfc((1 + x + 2 * i) / (2*np.sqrt(D*t))) #Analytical solution
+    
     return sum_analytical
+
 
 def create_initial_grid(N):
     """Create an initial grid for simulation with a seed particle"""
     grid = np.zeros((N, N))
-    grid[-1, :] = 1.0 # Setting Inital Boundary conditions
+
+    # Setting Inital Boundary conditions
+    grid[-1, :] = 1.0 
     cluster_points = [(0, N//2)]
-    grid[0, N//2] = 0.0  #  Initial Seed particle
+
+    # Initial Seed particle
+    grid[0, N//2] = 0.0
+
     return grid, cluster_points
+
 
 def get_initial_conc(N):
     """Create initial concentration using analytical solution"""
-    L = 1 #Length scale of the simulation 
-    T = 1 #Time at which analytical solution is to be determined
-    D = 1 #Diffusion Coefficient 
+    L = 1 # Length scale of the simulation 
+    T = 1 # Time at which analytical solution is to be determined
+    D = 1 # Diffusion Coefficient 
+
     y_values = np.linspace(0, L, N)
     analytic_vals = [float(analytical_solution(y, T, D)) for y in y_values]
     grid = np.array([[val]*N for val in analytic_vals])
+
     return grid
+
 
 def cluster_to_array(cluster_points, N):
     """Converts the list of cluster points into a 2D boolean array"""
     cluster_array = np.zeros((N, N), dtype=np.bool_)
+
     for i, j in cluster_points:
         cluster_array[i, j] = True
+
     return cluster_array
+
 
 def find_neighbours(cluster_points, N):
     """Finds all the nearest probable neighbours"""
     cluster_set = set(cluster_points)
     neighbours = set()
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
     for i, j in cluster_points:
         for di, dj in directions:
             ni, nj = i + di, j + dj
+
             if (0 <= ni < N and 0 <= nj < N and (ni, nj) not in cluster_set):
                 neighbours.add((ni, nj))
+
     return list(neighbours)
 
+
 def calculate_growth_probability(grid, neighbours, eta=1.0):
-    """Calculates the probability for the cluster to grow to each neighboring point"""
+    """Calculates the probability for the cluster to grow to each 
+    neighboring point"""
     probabilities = {}
     normalized_probabilities = {}
     total_probability = 0.0
@@ -77,16 +98,21 @@ def calculate_growth_probability(grid, neighbours, eta=1.0):
             
     return normalized_probabilities
 
+
 def select_growth_point(normalized_probabilities):
     """Select a growth point based on normalized probabilities"""
     if normalized_probabilities:
         points = list(normalized_probabilities.keys())
         probs = list(normalized_probabilities.values())
         selected_point = random.choices(points, weights=probs, k=1)[0]
+
         return selected_point
+
     else:
         print('No new point has been selected')
+
         return None
+
 
 @jit(nopython=True)
 def get_next_grid(grid, N, omega=1.7, cluster_array=None):
@@ -99,13 +125,16 @@ def get_next_grid(grid, N, omega=1.7, cluster_array=None):
         
     for i in range(1, N - 1):
         for j in range(N):
-            if not cluster_array[i, j]:  # Does not update values if point belongs to a cluster
+             # Does not update values if point belongs to a cluster
+            if not cluster_array[i, j]: 
                 old_value = grid[i, j]
-                new_value = 0.25 * (new_grid[i-1, j] + grid[i+1, j] + new_grid[i, (j-1)%N] + grid[i, (j+1)%N])
+                new_value = (0.25 * (new_grid[i-1, j] + grid[i+1, j] 
+                    + new_grid[i, (j-1)%N] + grid[i, (j+1)%N]))
                 new_grid[i, j] = (1 - omega) * old_value + omega * new_value
                 max_diff = max(max_diff, abs(new_grid[i, j] - old_value))
 
     return new_grid, max_diff
+
 
 def solve_laplace(grid, cluster_points, omega=1.7, max_iterations=10000, tol=1e-5):
     """Solves the time independent diffusion equation"""
@@ -118,10 +147,12 @@ def solve_laplace(grid, cluster_points, omega=1.7, max_iterations=10000, tol=1e-
 
         if max_diff < tol:
             break
+
         if np.max(c) > 10 * np.max(grid):
             return None, iters
             
     return c, iters
+
 
 def dla_simulation(N, num_particles=None, omega=1.7, eta=1.0):
     """
@@ -172,11 +203,13 @@ def dla_simulation(N, num_particles=None, omega=1.7, eta=1.0):
             if i == N - 1:
                 print(f"Simulation stopped: cluster reached the top boundary after {particles} particles.")
                 break
+        
         else:
             print(f'Numerical scheme unstable for omega: {omega}. Please change settings.')
             break
             
     return frames, conc, np.mean(iterations)
+
 
 def optimized_dla_simulation(N, num_particles, omega=1.7, eta=2.0):
     """
@@ -223,8 +256,10 @@ def optimized_dla_simulation(N, num_particles, omega=1.7, eta=2.0):
             conc[new_point] = 0.0
             particles += 1
             frames.append(cluster_points.copy())
+
         else:
-            print(f'Numerical scheme unstable for omega: {omega}. Please change settings.')
+            print(f'Numerical scheme unstable for omega: {omega}. '
+                'Please change settings.')
             break
             
     return frames, conc, np.mean(iterations)
@@ -250,11 +285,12 @@ def animate_dla(frames, N, interval=100):
         scatter.set_offsets(np.c_[x_vals, y_vals])  
         return scatter,
 
-    ani = FuncAnimation(fig, update, frames=frames, interval=interval, blit=True)
+    ani = FuncAnimation(fig, update, frames=frames, interval=interval, 
+        blit=True)
     plt.close(fig)
-    #plt.show()
 
     return ani
+
 
 def plot_final_dla_with_concentration(frames, conc, eta):
     """Plot the final DLA cluster with concentration heatmap"""
@@ -264,9 +300,11 @@ def plot_final_dla_with_concentration(frames, conc, eta):
     ax.set_ylim(-0.5, N - 0.5)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title(f"DLA Cluster with Heatmap (Eta = {eta})",fontweight='bold', fontsize=16)
+    ax.set_title(f"DLA Cluster with Heatmap (Eta = {eta})",fontweight='bold', 
+        fontsize=16)
 
-    heatmap = ax.imshow(conc, origin='upper', cmap='viridis', interpolation='none')
+    heatmap = ax.imshow(conc, origin='upper', cmap='viridis', 
+        interpolation='none')
 
     # Plot cluster points in red
     final_frame = frames[-1]
@@ -277,6 +315,7 @@ def plot_final_dla_with_concentration(frames, conc, eta):
     plt.colorbar(heatmap, ax=ax, label='Concentration')
     plt.tight_layout()
     plt.show()
+
 
 def check_optimal_sor(N=100, num_particles=50, runs=100):
     """Find optimal SOR parameter by testing different values"""
@@ -289,7 +328,8 @@ def check_optimal_sor(N=100, num_particles=50, runs=100):
         
         # Run multiple tests with this omega
         for _ in range(runs):
-            _, _, avg_iters = optimized_dla_simulation(N, num_particles=num_particles, omega=omega)
+            _, _, avg_iters = optimized_dla_simulation(N, 
+                num_particles=num_particles, omega=omega)
             if avg_iters is not None:
                 iterations.append(avg_iters)
         
@@ -300,10 +340,12 @@ def check_optimal_sor(N=100, num_particles=50, runs=100):
     
 
     plt.figure(figsize=(8, 5))
-    plt.plot(list(avg_iterations_dict.keys()), list(avg_iterations_dict.values()), marker='o', linestyle='-')
+    plt.plot(list(avg_iterations_dict.keys()), 
+        list(avg_iterations_dict.values()), marker='o', linestyle='-')
     plt.xlabel("Omega", fontsize = 18)
     plt.ylabel("Average Iterations", fontsize = 18)
-    plt.title("Average Iterations vs Omega Parameter", fontweight='bold', fontsize = 20)
+    plt.title("Average Iterations vs Omega Parameter", fontweight='bold', 
+        fontsize = 20)
     plt.grid(True)
     plt.savefig("omega_optimization.pdf")
     plt.show()
@@ -313,6 +355,7 @@ def check_optimal_sor(N=100, num_particles=50, runs=100):
         optimal_omega = min(avg_iterations_dict, key=avg_iterations_dict.get)
         print(f"Optimal omega value: {optimal_omega}")
         return optimal_omega
+        
     else:
         print("Could not determine optimal omega value")
         return None
