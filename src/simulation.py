@@ -398,7 +398,9 @@ def plot_final_dla_with_concentration(frames, conc, eta):
         y_vals, x_vals = zip(*final_frame)  
         ax.scatter(x_vals, y_vals, color='red', s=1.0)
 
-    plt.colorbar(heatmap, ax=ax, label='Concentration')
+    cbar = plt.colorbar(heatmap, ax=ax, label='Concentration')
+    cbar.ax.tick_params(labelsize=16)  # Increase font size of colorbar ticks
+    cbar.set_label('Concentration', fontsize=18)    
     plt.tight_layout()
     plt.show()
 
