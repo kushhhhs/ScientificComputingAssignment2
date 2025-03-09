@@ -4,6 +4,9 @@ Scientific Computing course assignments. Group consist of: Liesbet Ooghe, Freder
 # Contents
 simulation.py - Contains DLA Simulation Implemented with SOR
 dla_notebook.ipynb - This notebook runs the code neccesary for answering part A of the Assignment
+grid.py - Grid class object for Monte Carlo DLA
+walker.py - Random walker class object for Monte Carlo DLA
+montecarlo_dla.ipynb - Notebook to run Monte Carlo method DLA.
 gs_class.py - Contains the Gray-Scott reaction-diffusion model class.
 gs_visual.py - Contains all neccesary visualisation functions for the Gray-Scott model.
 gray_scott.ipynb - This notebook allows the user to view the generated Gray-Scott model for different parameters as plots and animations.
