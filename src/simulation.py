@@ -251,7 +251,9 @@ def animate_dla(frames, N, interval=100):
         return scatter,
 
     ani = FuncAnimation(fig, update, frames=frames, interval=interval, blit=True)
-    plt.show()
+    plt.close(fig)
+    #plt.show()
+
     return ani
 
 def plot_final_dla_with_concentration(frames, conc, eta):
