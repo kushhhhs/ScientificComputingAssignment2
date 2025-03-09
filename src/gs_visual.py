@@ -111,21 +111,35 @@ def plot_field_compare(gs1, gs2, gs3, gs4, iterations=5000):
 
     im1 = ax1.imshow(gs1.U[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, 
         vmax=cmax)
-    ax1.set_title(f"Rings, f={gs1.feed} and k={gs1.kill}")
+    ax1.set_title(f"Rings", fontweight='bold', 
+        fontsize=16)
+    ax1.set_xticks([])
+    ax1.set_yticks([])
 
     im2 = ax2.imshow(gs2.U[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, 
         vmax=cmax)
-    ax2.set_title(f"Splitting cells (mitosis), f={gs2.feed} and k={gs2.kill}")
+    ax2.set_title(f"Splitting cells (mitosis)", 
+        fontweight='bold', fontsize=16)
+    ax2.set_xticks([])
+    ax2.set_yticks([])
 
     im3 = ax3.imshow(gs3.U[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, 
         vmax=cmax)
-    ax3.set_title(f"Maze, f={gs3.feed} and k={gs3.kill}")
+    ax3.set_title(f"Maze", fontweight='bold', 
+        fontsize=16)
+    ax3.set_xticks([])
+    ax3.set_yticks([])
 
     im4 = ax4.imshow(gs4.U[1:-1, 1:-1], cmap="jet", origin="lower", vmin=cmin, 
         vmax=cmax)
-    ax4.set_title(f"Belousov-Zhabotinsky-like, f={gs4.feed} and k={gs4.kill}")
+    ax4.set_title(f"Belousov-Zhabotinsky-like",
+        fontweight='bold', fontsize=16)
+    ax4.set_xticks([])
+    ax4.set_yticks([])
 
     cbar = fig.colorbar(im1, ax=[ax1, ax2, ax3, ax4], orientation="vertical", 
-        shrink=0.8, label="Concentration (U & V)")
+        shrink=0.8)
+    cbar.ax.tick_params(labelsize=16)
+    cbar.set_label("Concentration (U)", fontsize=18)
 
     return fig
